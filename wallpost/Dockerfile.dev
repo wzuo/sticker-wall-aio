@@ -1,0 +1,12 @@
+FROM python:3.5.2
+
+MAINTAINER Kamil Sokołowski <sokolowski.k@outlook.com>
+
+RUN mkdir -p /app
+ADD . /app
+
+WORKDIR /app
+
+EXPOSE 8000
+
+RUN pip install -U pip

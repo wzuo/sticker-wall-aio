@@ -1,0 +1,6 @@
+pytest
+pytest-watch
+pytest-asyncio
+pytest-aiohttp
+pytest-pep8
+autopep8

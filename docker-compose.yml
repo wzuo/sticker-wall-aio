@@ -1,0 +1,69 @@
+version: '2'
+
+services:
+  dev-app:
+    build:
+      context: ./wallpost
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./wallpost:/app
+      - pip-cache:/root/.cache
+    environment:
+      - POSTGRESQL_URL=postgresql://postgres@db:5432/postgres
+    links:
+      - "dev-db:db"
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    command: bash -c "pip install -r requirements.txt -r requirements-dev.txt &&
+             gunicorn wsgi:app --bind 0.0.0.0:8000 --worker-class aiohttp.worker.GunicornWebWorker -w 1 --reload"
+    networks:
+      app:
+        aliases:
+          - dev-app
+
+  app-tests:
+    build:
+      context: ./wallpost
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./wallpost:/app
+      - pip-cache:/root/.cache
+    environment:
+      - POSTGRESQL_URL=postgresql://postgres@db:5432/postgres
+    links:
+      - "tests-db:db"
+    stdin_open: true
+    command: bash -c "pip install -r requirements.txt -r requirements-dev.txt &&
+             ptw ./ -- --pep8 -s -rs --color=yes"
+    networks:
+      app-tests:
+        aliases:
+          - app-tests
+
+  dev-db:
+    image: postgres:9.5
+    ports:
+      - "5432:5432"
+    networks:
+      app:
+        aliases:
+          - dev-db
+
+  tests-db:
+    image: postgres:9.5
+    ports:
+      - "5433:5432"
+    networks:
+      app-tests:
+        aliases:
+          - tests-db
+
+
+volumes:
+  pip-cache:
+    driver: local
+
+networks:
+  app:
+  app-tests:

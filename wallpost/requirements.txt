@@ -1,0 +1,6 @@
+aiohttp
+gunicorn
+raven
+aiopg
+sqlalchemy
+jsonschema
